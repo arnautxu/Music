@@ -118,11 +118,11 @@ export default function App() {
   // Per-section focal frames: where the camera looks on the vinyl.
   // x/y in % of vinyl size from center. scale is the zoom factor.
   const FRAMES = [
-    { x: 0,   y: 0,   scale: 1.0,  rot: 0   }, // intro · disco entero, centrado
-    { x: -22, y: -18, scale: 1.45, rot: 60  }, // estudio · cuadrante sup-izq, surcos
-    { x: 26,  y: -10, scale: 1.55, rot: 130 }, // servicios · cuadrante sup-der
-    { x: 0,   y: 0,   scale: 1.85, rot: 200 }, // roster · cara de la etiqueta
-    { x: -8,  y: 22,  scale: 1.4,  rot: 280 }, // contacto · borde inferior
+    { x: 0,   y: 0,   scale: 1.0  }, // intro · disco entero, centrado
+    { x: -22, y: -18, scale: 1.45 }, // estudio · cuadrante sup-izq, surcos
+    { x: 26,  y: -10, scale: 1.55 }, // servicios · cuadrante sup-der
+    { x: 0,   y: 0,   scale: 1.85 }, // roster · cara de la etiqueta
+    { x: -8,  y: 22,  scale: 1.4  }, // contacto · borde inferior
   ]
   const lerp = (a, b, t) => a + (b - a) * t
   const next = FRAMES[Math.min(stage + 1, total - 1)]
@@ -132,11 +132,8 @@ export default function App() {
     x: lerp(cur.x, next.x, t),
     y: lerp(cur.y, next.y, t),
     scale: lerp(cur.scale, next.scale, t),
-    rot: lerp(cur.rot, next.rot, t),
   }
   const scale = focal.scale
-  const rotate = focal.rot
-  // Compose offset: translate the vinyl so focal point sits at viewport center.
   const offsetX = -focal.x * scale * 0.01
   const offsetY = -focal.y * scale * 0.01
 
@@ -192,7 +189,7 @@ export default function App() {
         <div
           className={`vinyl-wrap${isPlaying ? ' spinning' : ''}${progress > 0.005 ? ' settled' : ''}`}
           style={{
-            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${scale}) rotate(${rotate}deg)`,
+            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${scale})`,
           }}
         >
           <div className="vinyl">
