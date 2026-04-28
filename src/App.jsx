@@ -66,10 +66,10 @@ const UploadIcon = () => (
 // rx/ry/rz: rotation in degrees. tx/ty: translation in vmin. tz: translateZ in vmin (>0 closer).
 const FRAMES = [
   { rx:  -8, ry:   0, rz:  0, tx:   0, ty:   0, tz: -100 }, // intro · pla obert
-  { rx: -16, ry:   6, rz:  0, tx:  16, ty:   6, tz:   40 }, // plato · pan al plat
-  { rx: -22, ry: -10, rz:  1, tx: -22, ty:  28, tz:  140 }, // aguja · picada al cap
-  { rx: -10, ry:   2, rz:  0, tx:  18, ty:   4, tz:  250 }, // etiqueta · zenital
-  { rx: -18, ry: -18, rz:  0, tx: -28, ty: -22, tz:  130 }, // controls
+  { rx: -12, ry:   4, rz:  0, tx:  20, ty:   2, tz:   -20 }, // plato · pan al plat (vinil centrat)
+  { rx: -22, ry: -10, rz:  1, tx: -22, ty:  28, tz:  120 }, // aguja · picada al cap
+  { rx:  -8, ry:   2, rz:  0, tx:  20, ty:   2, tz:  140 }, // etiqueta · zenital de la label
+  { rx: -18, ry: -16, rz:  0, tx: -26, ty: -20, tz:  100 }, // controls
 ]
 
 export default function App() {
