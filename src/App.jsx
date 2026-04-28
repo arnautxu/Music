@@ -134,8 +134,11 @@ export default function App() {
     scale: lerp(cur.scale, next.scale, t),
   }
   const scale = focal.scale
-  const offsetX = -focal.x * scale * 0.01
-  const offsetY = -focal.y * scale * 0.01
+  // Disc width is min(72vmin, 880px). Focal x/y are in % of disc radius from center.
+  // To move focal point to viewport center: offset = -focal% * scale * (disc_radius_in_vmin / 100)
+  const DISC_R_VMIN = 36 // half of 72vmin
+  const offsetX = -focal.x * scale * (DISC_R_VMIN / 100)
+  const offsetY = -focal.y * scale * (DISC_R_VMIN / 100)
 
   const panelStyle = (i, align) => {
     const d = i - stage
