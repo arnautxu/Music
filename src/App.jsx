@@ -196,8 +196,13 @@ export default function App() {
           }}
         >
           <div className="vinyl">
+            <div className="vinyl-base" />
             <div className="grooves" />
-            <div className="shine" />
+            <div className="grooves-fine" />
+            <div className="iridescence" />
+            <div className="specular" />
+            <div className="dead-wax" />
+            <div className="label-ring" />
             <div className="label">
               <div className="label-inner">
                 <div className="label-row">CINTA NEGRA · RECORDS</div>
