@@ -31,8 +31,7 @@
 }
 
 .scroll-track { width: 1px; pointer-events: none; }
-.scroll-stop { height: 100vh; scroll-snap-align: start; scroll-snap-stop: always; }
-html { scroll-snap-type: y proximity; }
+.scroll-stop { height: 100vh; }
 
 .grain {
   position: fixed;
@@ -108,6 +107,9 @@ html { scroll-snap-type: y proximity; }
   inset: 0;
   overflow: hidden;
   z-index: 10;
+  perspective: 1400px;
+  perspective-origin: 50% 42%;
+  transform-style: preserve-3d;
 }
 
 /* ======================== TURNTABLE SCENE ======================== */
@@ -117,8 +119,9 @@ html { scroll-snap-type: y proximity; }
   width: 100vmin;
   aspect-ratio: 3 / 2;
   transform-origin: center center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
   will-change: transform;
-  contain: layout paint;
   pointer-events: auto;
 }
 

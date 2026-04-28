@@ -61,15 +61,14 @@ const UploadIcon = () => (
   </svg>
 )
 
-// FRAMES — focal points across the turntable scene.
-// x/y are % from the turntable center (-50..+50 = edges of the scene canvas).
-// scale is the zoom factor.
+// FRAMES — 3D camera positions around the turntable.
+// rx/ry/rz: rotation in degrees. tx/ty: translation in vmin. tz: translateZ in vmin (>0 closer).
 const FRAMES = [
-  { x:   0, y:   0, scale: 0.78 }, // intro · turntable sencer
-  { x: -16, y:  -2, scale: 1.55 }, // platter · zoom al plat amb el vinil girant
-  { x:  18, y: -22, scale: 2.10 }, // needle · headshell + agulla
-  { x: -16, y:  -2, scale: 2.50 }, // label · etiqueta del vinil
-  { x:  26, y:  18, scale: 1.90 }, // controls · botons start/speed
+  { rx:  -6, ry:   0, rz: 0, tx:   0, ty:  0,  tz: -120 }, // intro · pla obert i lleugerament inclinat
+  { rx: -26, ry:   8, rz: 0, tx:  16, ty:  6,  tz:   30 }, // platter · vol cap al plat
+  { rx: -38, ry: -16, rz: 2, tx: -22, ty: 30,  tz:  140 }, // needle · pica sobre el cap d'agulla
+  { rx:  -8, ry:   0, rz: 0, tx:  18, ty:  4,  tz:  240 }, // label · vista zenital de l'etiqueta
+  { rx: -32, ry: -28, rz: 0, tx: -28, ty: -22, tz:  100 }, // controls · es gira cap al panell
 ]
 
 export default function App() {
@@ -130,14 +129,14 @@ export default function App() {
   const cur = FRAMES[stage]
   const nxt = FRAMES[Math.min(stage + 1, total - 1)]
   const tt = easeInOut(local)
-  const focal = {
-    x: lerp(cur.x, nxt.x, tt),
-    y: lerp(cur.y, nxt.y, tt),
-    scale: lerp(cur.scale, nxt.scale, tt),
+  const cam = {
+    rx: lerp(cur.rx, nxt.rx, tt),
+    ry: lerp(cur.ry, nxt.ry, tt),
+    rz: lerp(cur.rz, nxt.rz, tt),
+    tx: lerp(cur.tx, nxt.tx, tt),
+    ty: lerp(cur.ty, nxt.ty, tt),
+    tz: lerp(cur.tz, nxt.tz, tt),
   }
-  // Turntable canvas: 100vmin wide, aspect-ratio 3:2 → half-w 50vmin, half-h 33.33vmin
-  const offsetX = -focal.x * focal.scale * 0.50  // 50vmin / 100% = 0.5
-  const offsetY = -focal.y * focal.scale * 0.3333
 
   const panelStyle = (i, align) => {
     const d = i - stage
@@ -191,7 +190,7 @@ export default function App() {
         <div
           className={`turntable${isPlaying ? ' playing' : ''}`}
           style={{
-            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${focal.scale})`,
+            transform: `translate(-50%, -50%) translate3d(${cam.tx}vmin, ${cam.ty}vmin, ${cam.tz}vmin) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) rotateZ(${cam.rz}deg)`,
           }}
         >
           {/* PLINTH */}
