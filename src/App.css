@@ -110,35 +110,127 @@ html { scroll-snap-type: y proximity; }
   z-index: 10;
 }
 
-/* ======================== VINYL ======================== */
-.vinyl-wrap {
+/* ======================== TURNTABLE SCENE ======================== */
+.turntable {
   position: absolute;
   top: 50%; left: 50%;
-  width: min(72vmin, 880px);
-  height: min(72vmin, 880px);
+  width: 100vmin;
+  aspect-ratio: 3 / 2;
   transform-origin: center center;
   will-change: transform;
   contain: layout paint;
-}
-.vinyl-wrap.spinning .vinyl { animation: spin 4s linear infinite; }
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  pointer-events: auto;
 }
 
+/* PLINTH — caixa de fusta/metall */
+.plinth {
+  position: absolute;
+  inset: 4% 2%;
+  border-radius: 2.5% / 4%;
+  background:
+    linear-gradient(180deg, oklch(28% 0.018 60) 0%, oklch(20% 0.015 60) 60%, oklch(14% 0.012 60) 100%);
+  box-shadow:
+    0 60px 140px oklch(0% 0 0 / 0.7),
+    0 12px 36px oklch(0% 0 0 / 0.55),
+    inset 0 1px 0 oklch(94% 0.018 80 / 0.08),
+    inset 0 -2px 0 oklch(0% 0 0 / 0.4),
+    0 0 0 1px oklch(94% 0.018 80 / 0.06);
+}
+.plinth-grain {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(95deg,
+      oklch(94% 0.018 80 / 0.018) 0 1px,
+      transparent 1px 3px),
+    radial-gradient(120% 80% at 30% 0%, oklch(78% 0.12 80 / 0.06), transparent 60%);
+  mix-blend-mode: overlay;
+  opacity: 0.7;
+}
+.plinth-edge {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  border: 1px solid oklch(78% 0.12 80 / 0.10);
+  pointer-events: none;
+}
+
+/* PLATTER AREA + STROBE RING */
+.platter-area {
+  position: absolute;
+  top: 50%; left: 32%;
+  width: 56%; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+.strobe-ring {
+  position: absolute;
+  inset: -5%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    oklch(78% 0.13 80 / 0.55) 0deg 1deg,
+    transparent 1deg 6deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 50%, black 51% 53%, transparent 54%);
+          mask: radial-gradient(circle, transparent 0 50%, black 51% 53%, transparent 54%);
+}
+.strobe-glow {
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, oklch(78% 0.13 80 / 0.10), transparent 60%);
+  pointer-events: none;
+}
+
+/* PLATTER — disc d'alumini fresat */
+.platter {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, oklch(70% 0.012 80) 0%, oklch(46% 0.008 70) 30%, oklch(26% 0.006 70) 60%, oklch(12% 0.005 70) 100%);
+  box-shadow:
+    inset 0 0 0 2px oklch(94% 0.018 80 / 0.10),
+    inset 0 -8px 24px oklch(0% 0 0 / 0.5),
+    0 18px 50px oklch(0% 0 0 / 0.55);
+}
+.platter-disc {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg,
+      oklch(94% 0.018 80 / 0.04) 0deg 0.5deg,
+      transparent 0.5deg 1.5deg),
+    repeating-radial-gradient(circle at 50% 50%,
+      oklch(94% 0.018 80 / 0.025) 0 0.6px,
+      transparent 0.6px 2.4px);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+.platter-spindle {
+  position: absolute; top: 50%; left: 50%;
+  width: 1.6%; aspect-ratio: 1;
+  background: linear-gradient(180deg, oklch(78% 0.012 80), oklch(36% 0.008 70));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  box-shadow: 0 0 0 2px oklch(0% 0 0 / 0.6);
+}
+
+/* VINYL on top of platter (smaller now) */
 .vinyl {
   position: absolute;
-  inset: 0;
+  inset: 6%;
   border-radius: 50%;
   overflow: hidden;
   isolation: isolate;
   box-shadow:
-    0 40px 120px oklch(0% 0 0 / 0.75),
-    0 8px 24px oklch(0% 0 0 / 0.55),
-    0 0 0 1px oklch(94% 0.018 80 / 0.06);
-  transform: translateZ(0);
+    0 6px 18px oklch(0% 0 0 / 0.6),
+    0 0 0 1px oklch(94% 0.018 80 / 0.04);
 }
-
+.vinyl.spinning { animation: spin 1.81s linear infinite; }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 /* base obsidiana amb subtil tint blau-violeta — no negre pur */
 .vinyl-base {
   position: absolute; inset: 0;
@@ -292,51 +384,345 @@ html { scroll-snap-type: y proximity; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.spindle {
+.spindle-hole {
   position: absolute;
   top: 50%; left: 50%;
-  width: 6%; height: 6%;
-  background: oklch(8% 0.005 60);
+  width: 8%; aspect-ratio: 1;
+  background: radial-gradient(circle at 50% 50%, oklch(0% 0 0) 30%, oklch(20% 0.005 60) 70%);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: inset 0 0 4px oklch(94% 0.018 80 / 0.18);
+  box-shadow: inset 0 0 4px oklch(94% 0.018 80 / 0.2);
 }
 
 /* ======================== TONEARM ======================== */
 .tonearm {
   position: absolute;
-  top: -10%; right: -10%;
-  width: 56%;
-  height: 56%;
+  /* Pivot is anchored at right side of plinth, level with platter center */
+  top: 50%;
+  right: 14%;
+  width: 38%;
+  height: 4%;
   pointer-events: none;
-  transform: rotate(34deg);
-  transform-origin: 86% 14%;
-  transition: transform 800ms var(--ease-in-out);
+  transform-origin: 100% 50%;
+  transform: rotate(-22deg);
+  transition: transform 900ms var(--ease-in-out);
+  z-index: 6;
 }
-.tonearm.down { transform: rotate(20deg); }
-.tonearm .pivot {
+.tonearm.down { transform: rotate(-12deg); }
+
+.tonearm .pivot-base {
   position: absolute;
-  top: 6%; right: 6%;
-  width: 10%; aspect-ratio: 1;
+  top: 50%; right: -4%;
+  width: 18%; aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, oklch(88% 0.012 80), oklch(48% 0.008 70));
-  box-shadow: 0 6px 16px oklch(0% 0 0 / 0.55), inset 0 0 6px oklch(0% 0 0 / 0.4);
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle at 35% 30%, oklch(82% 0.008 80), oklch(50% 0.006 70) 50%, oklch(28% 0.004 70) 100%);
+  box-shadow:
+    0 6px 18px oklch(0% 0 0 / 0.55),
+    inset 0 0 8px oklch(0% 0 0 / 0.45),
+    inset 0 1px 0 oklch(94% 0.018 80 / 0.2);
 }
+.tonearm .pivot-pin {
+  position: absolute; top: 50%; left: 50%;
+  width: 36%; aspect-ratio: 1;
+  background: radial-gradient(circle at 30% 30%, oklch(28% 0.005 70), oklch(8% 0.005 70));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 4px oklch(94% 0.018 80 / 0.25);
+}
+
+/* Counterweight — extends behind the pivot */
+.tonearm .counterweight {
+  position: absolute;
+  top: 50%; right: -16%;
+  width: 14%; aspect-ratio: 1.6;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, oklch(36% 0.006 70), oklch(16% 0.005 70));
+  border-radius: 8% / 30%;
+  box-shadow: 0 4px 12px oklch(0% 0 0 / 0.55), inset 0 1px 0 oklch(94% 0.018 80 / 0.18);
+}
+.tonearm .anti-skate {
+  position: absolute;
+  top: 50%; right: -8%;
+  width: 6%; aspect-ratio: 1;
+  background: radial-gradient(circle at 30% 30%, oklch(74% 0.10 80), oklch(40% 0.06 70));
+  border-radius: 50%;
+  transform: translate(0, -150%);
+  box-shadow: 0 2px 6px oklch(0% 0 0 / 0.5);
+}
+
+/* Arm tube — S-shape via two segments emulated with one tube */
 .tonearm .arm {
   position: absolute;
-  top: 12%; left: 8%;
-  width: 76%; height: 3px;
-  background: linear-gradient(90deg, oklch(82% 0.012 80), oklch(46% 0.008 70));
-  border-radius: 2px;
-  box-shadow: 0 2px 6px oklch(0% 0 0 / 0.55);
+  inset: 0;
 }
-.tonearm .head {
+.tonearm .arm-tube {
   position: absolute;
-  top: 6%; left: 2%;
-  width: 14%; height: 7%;
-  background: linear-gradient(180deg, oklch(22% 0.005 60), oklch(10% 0.005 60));
+  top: 50%; left: 0; right: 12%;
+  height: 28%;
+  transform: translateY(-50%);
+  background:
+    linear-gradient(180deg,
+      oklch(86% 0.01 80) 0%,
+      oklch(70% 0.008 80) 30%,
+      oklch(40% 0.006 70) 70%,
+      oklch(24% 0.005 70) 100%);
+  border-radius: 999px;
+  box-shadow:
+    0 3px 8px oklch(0% 0 0 / 0.55),
+    inset 0 1px 0 oklch(96% 0.018 80 / 0.6),
+    inset 0 -1px 0 oklch(0% 0 0 / 0.5);
+}
+.tonearm .finger-lift {
+  position: absolute;
+  top: 50%; left: 18%;
+  width: 6%; height: 1.5px;
+  transform: translateY(-50%) rotate(40deg);
+  background: oklch(46% 0.008 70);
+  border-radius: 1px;
+}
+
+/* Headshell + cartridge */
+.tonearm .headshell {
+  position: absolute;
+  left: -6%; top: 50%;
+  transform: translateY(-50%);
+  width: 13%; aspect-ratio: 1.6;
+  background:
+    linear-gradient(180deg, oklch(24% 0.006 70) 0%, oklch(10% 0.005 70) 100%);
+  border-radius: 14% / 24%;
+  box-shadow:
+    0 4px 12px oklch(0% 0 0 / 0.6),
+    inset 0 1px 0 oklch(94% 0.018 80 / 0.15),
+    inset 0 -1px 0 oklch(0% 0 0 / 0.6);
+}
+.tonearm .headshell-body {
+  position: absolute;
+  inset: 14% 12%;
+  background: linear-gradient(180deg, oklch(82% 0.012 80), oklch(46% 0.008 70));
+  border-radius: 18% / 36%;
+  box-shadow: inset 0 0 4px oklch(0% 0 0 / 0.45);
+}
+.tonearm .cartridge {
+  position: absolute;
+  bottom: -42%; left: 22%;
+  width: 56%; height: 60%;
+  background: linear-gradient(180deg, oklch(68% 0.16 30), oklch(40% 0.14 30) 70%, oklch(20% 0.10 30) 100%);
+  border-radius: 18% / 30%;
+  box-shadow: 0 2px 6px oklch(0% 0 0 / 0.6), inset 0 1px 0 oklch(96% 0.06 30 / 0.4);
+}
+.tonearm .stylus {
+  position: absolute;
+  bottom: -94%; left: 48%;
+  width: 1.4px; height: 26%;
+  background: linear-gradient(180deg, oklch(96% 0.018 80), oklch(50% 0.008 70));
+  border-radius: 0 0 50% 50%;
+  box-shadow: 0 0 4px oklch(96% 0.06 80 / 0.5);
+}
+
+/* Cueing lever — palanca petita davant del pivot */
+.cueing-lever {
+  position: absolute;
+  top: 53%; right: 9%;
+  width: 4%; height: 7%;
+  z-index: 5;
+}
+.cueing-stem {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, oklch(36% 0.005 70), oklch(18% 0.005 70));
+  border-radius: 30% / 18%;
+  box-shadow: 0 3px 8px oklch(0% 0 0 / 0.55);
+}
+.cueing-knob {
+  position: absolute;
+  top: -50%; left: 50%;
+  width: 60%; aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 30% 30%, oklch(82% 0.012 80), oklch(40% 0.008 70));
+  border-radius: 50%;
+  box-shadow: 0 3px 8px oklch(0% 0 0 / 0.55);
+}
+
+/* ======================== CONTROLS ======================== */
+.controls {
+  position: absolute;
+  top: 56%;
+  right: 4%;
+  width: 32%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4%;
+  padding: 2% 2.4%;
+  background: linear-gradient(180deg, oklch(20% 0.012 60) 0%, oklch(12% 0.008 60) 100%);
+  border-radius: 1.2%;
+  box-shadow:
+    inset 0 1px 0 oklch(94% 0.018 80 / 0.08),
+    inset 0 -1px 0 oklch(0% 0 0 / 0.5),
+    0 6px 18px oklch(0% 0 0 / 0.5);
+  z-index: 4;
+}
+.speed-group { display: flex; gap: 8px; }
+.pill {
+  flex: 1;
+  position: relative;
+  padding: 8% 0;
+  background: linear-gradient(180deg, oklch(28% 0.008 60), oklch(14% 0.006 60));
+  border: 1px solid oklch(94% 0.018 80 / 0.08);
+  border-radius: 8%;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.6vmin, 18px);
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  transition: transform 160ms var(--ease-out), color 200ms, border-color 200ms, background 200ms;
+}
+.pill em {
+  font-style: normal;
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+.pill:hover { color: var(--ink); }
+.pill:active { transform: scale(0.97); }
+.pill.on {
+  color: oklch(20% 0.04 60);
+  background: linear-gradient(180deg, oklch(82% 0.135 75), oklch(64% 0.135 75));
+  border-color: oklch(82% 0.135 75);
+  box-shadow: inset 0 1px 0 oklch(98% 0.04 80 / 0.5), 0 0 12px oklch(78% 0.135 75 / 0.4);
+}
+
+.start-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8%;
+  padding: 10% 4%;
+  background:
+    radial-gradient(circle at 30% 30%, oklch(36% 0.04 30), oklch(20% 0.04 30) 70%, oklch(10% 0.03 30) 100%);
+  border: 1px solid oklch(94% 0.018 80 / 0.1);
+  border-radius: 50%;
+  aspect-ratio: 1;
+  width: 56%;
+  align-self: center;
+  color: oklch(94% 0.018 80);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.2vmin, 13px);
+  letter-spacing: 0.18em;
+  transition: transform 160ms var(--ease-out), box-shadow 240ms;
+  box-shadow:
+    inset 0 1px 0 oklch(94% 0.018 80 / 0.1),
+    inset 0 -2px 0 oklch(0% 0 0 / 0.5),
+    0 6px 16px oklch(0% 0 0 / 0.5);
+}
+.start-btn:active { transform: scale(0.96); }
+.start-btn.on {
+  background: radial-gradient(circle at 30% 30%, oklch(74% 0.18 30), oklch(44% 0.18 30) 70%, oklch(20% 0.10 30) 100%);
+  box-shadow:
+    inset 0 1px 0 oklch(96% 0.04 30 / 0.5),
+    0 0 24px oklch(60% 0.20 30 / 0.55),
+    0 6px 16px oklch(0% 0 0 / 0.5);
+}
+.start-led {
+  width: 12%; aspect-ratio: 1;
+  background: oklch(36% 0.06 30);
+  border-radius: 50%;
+  box-shadow: inset 0 0 3px oklch(0% 0 0 / 0.5);
+  transition: background 240ms, box-shadow 240ms;
+}
+.start-btn.on .start-led {
+  background: oklch(80% 0.20 30);
+  box-shadow: 0 0 10px oklch(70% 0.22 30 / 0.85), inset 0 0 4px oklch(95% 0.05 30 / 0.6);
+}
+.start-label {
+  font-weight: 500;
+}
+
+.pitch {
+  display: flex;
+  align-items: center;
+  gap: 4%;
+  font-family: var(--mono);
+  font-size: clamp(8px, 1vmin, 11px);
+  color: var(--ink-dim);
+  letter-spacing: 0.12em;
+}
+.pitch-label, .pitch-value { width: 18%; text-align: center; }
+.pitch-track {
+  position: relative;
+  flex: 1;
+  height: 5px;
+  background: linear-gradient(180deg, oklch(8% 0.005 60), oklch(16% 0.008 60));
   border-radius: 3px;
-  box-shadow: 0 4px 10px oklch(0% 0 0 / 0.6);
+  box-shadow: inset 0 1px 2px oklch(0% 0 0 / 0.6);
+}
+.pitch-handle {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14%; height: 220%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(180deg, oklch(86% 0.012 80), oklch(48% 0.008 70));
+  border-radius: 2px;
+  box-shadow: 0 2px 6px oklch(0% 0 0 / 0.6), inset 0 1px 0 oklch(98% 0.04 80 / 0.5);
+}
+.pitch-center {
+  position: absolute;
+  top: -3px; left: 50%;
+  width: 1px; height: 11px;
+  background: oklch(78% 0.13 80 / 0.6);
+  transform: translateX(-50%);
+}
+
+.power {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 4%;
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.1vmin, 11px);
+  color: var(--ink-dim);
+  letter-spacing: 0.18em;
+}
+.power-led {
+  width: 8px; aspect-ratio: 1;
+  background: oklch(28% 0.06 140);
+  border-radius: 50%;
+  box-shadow: inset 0 0 2px oklch(0% 0 0 / 0.5);
+  transition: background 240ms, box-shadow 240ms;
+}
+.power-led.on {
+  background: oklch(76% 0.22 140);
+  box-shadow: 0 0 8px oklch(76% 0.22 140 / 0.7), inset 0 0 2px oklch(96% 0.06 140 / 0.6);
+}
+
+/* ======================== PLAQUE ======================== */
+.plaque {
+  position: absolute;
+  bottom: 7%;
+  left: 8%;
+  padding: 1% 2.4%;
+  background: linear-gradient(180deg, oklch(20% 0.012 60), oklch(12% 0.008 60));
+  border: 1px solid oklch(78% 0.13 80 / 0.18);
+  border-radius: 6px;
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  box-shadow: 0 4px 12px oklch(0% 0 0 / 0.45), inset 0 1px 0 oklch(94% 0.018 80 / 0.06);
+  z-index: 3;
+}
+.plaque-line {
+  font-size: clamp(11px, 1.4vmin, 14px);
+  color: oklch(78% 0.13 80);
+  font-weight: 600;
+}
+.plaque-sub {
+  font-size: clamp(8px, 0.95vmin, 10px);
+  margin-top: 2px;
+  opacity: 0.7;
 }
 
 /* ======================== SECTIONS ======================== */

@@ -11,46 +11,46 @@ const SECTIONS = [
     align: 'left',
   },
   {
-    id: 'about',
-    eyebrow: '01 / Estudio',
-    title: 'Una sala. Dos cintas. Mil canciones.',
+    id: 'platter',
+    eyebrow: '01 / El plato',
+    title: 'Un plato. Una cinta. Mil canciones.',
     body:
-      'Dos salas analógicas en el barrio del Poble-sec. Cinta de 1/2", consola Trident 80B y un par de monitores Genelec heredados de un estudio que ya no existe. Lo demás lo pone la canción.',
+      'Plato directo de aluminio fresado, motor coreless y un rumbling silencioso que casi no se oye. Encima, un disco que ya gira por sí mismo.',
     align: 'right',
   },
   {
-    id: 'services',
-    eyebrow: '02 / Trabajos',
-    title: 'Producir · Mezclar · Cortar a vinilo.',
+    id: 'needle',
+    eyebrow: '02 / La aguja',
+    title: 'La cápsula es la verdad.',
     body:
-      'Sesiones de producción a tarifa por canción. Mezcla híbrida con preamps de los 70 y plug-ins del 2026. Mastering preparado tanto para streaming como para corte directo a 180 g.',
+      'Cada cápsula que cae sobre el surco traduce sesenta años de música a corriente eléctrica. Trabajamos con Ortofon SPU y Audio-Technica VM540 — dos formas distintas de decir lo mismo.',
     align: 'left',
   },
   {
-    id: 'roster',
-    eyebrow: '03 / Roster',
-    title: 'Artistas que giran con nosotros.',
+    id: 'label',
+    eyebrow: '03 / La etiqueta',
+    title: 'Roster que ya gira con nosotros.',
     body:
       'Marta Codinach · Bicicleta Eléctrica · Hermanos Onda · The Crackle · Maia Sur · Niño Sintético · Lluvia Lenta · y siete más esperando turno.',
     align: 'right',
   },
   {
-    id: 'contact',
-    eyebrow: '04 / Cómo llegar',
+    id: 'controls',
+    eyebrow: '04 / Los controles',
     title: '¿Tu próximo disco gira aquí?',
     body:
-      'Pásate por el estudio cualquier jueves a partir de las cinco. Hay café de filtro y un sofá hundido. Si prefieres escribir, abajo tienes el correo.',
+      'Pulsa Start, baja la aguja y entra al estudio. Margarit 47, baixos · Barcelona. Jueves a partir de las cinco, hay café de filtro.',
     align: 'left',
   },
 ]
 
-const PlayIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+const PlayIcon = ({ s = 14 }) => (
+  <svg viewBox="0 0 24 24" width={s} height={s} fill="currentColor" aria-hidden="true">
     <path d="M7 5.14v13.72a1 1 0 0 0 1.55.83l10.29-6.86a1 1 0 0 0 0-1.66L8.55 4.31A1 1 0 0 0 7 5.14Z" />
   </svg>
 )
-const PauseIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+const PauseIcon = ({ s = 14 }) => (
+  <svg viewBox="0 0 24 24" width={s} height={s} fill="currentColor" aria-hidden="true">
     <rect x="6.5" y="5" width="3.5" height="14" rx="1" />
     <rect x="14" y="5" width="3.5" height="14" rx="1" />
   </svg>
@@ -61,11 +61,23 @@ const UploadIcon = () => (
   </svg>
 )
 
+// FRAMES — focal points across the turntable scene.
+// x/y are % from the turntable center (-50..+50 = edges of the scene canvas).
+// scale is the zoom factor.
+const FRAMES = [
+  { x:   0, y:   0, scale: 0.78 }, // intro · turntable sencer
+  { x: -16, y:  -2, scale: 1.55 }, // platter · zoom al plat amb el vinil girant
+  { x:  18, y: -22, scale: 2.10 }, // needle · headshell + agulla
+  { x: -16, y:  -2, scale: 2.50 }, // label · etiqueta del vinil
+  { x:  26, y:  18, scale: 1.90 }, // controls · botons start/speed
+]
+
 export default function App() {
   const [progress, setProgress] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackName, setTrackName] = useState('Side A — Untitled Demo')
   const [trackUrl, setTrackUrl] = useState(null)
+  const [speed, setSpeed] = useState(33)
   const audioRef = useRef(null)
   const fileRef = useRef(null)
   const rafRef = useRef(0)
@@ -112,40 +124,27 @@ export default function App() {
   const total = SECTIONS.length
   const stage = Math.min(total - 1, Math.floor(progress * total * 0.999))
   const local = progress * total - stage
-  const ease = (t) => 1 - Math.pow(1 - t, 3)
   const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
 
-  // Per-section focal frames: where the camera looks on the vinyl.
-  // x/y in % of vinyl size from center. scale is the zoom factor.
-  const FRAMES = [
-    { x: 0,   y: 0,   scale: 1.0  }, // intro · disco entero, centrado
-    { x: -22, y: -18, scale: 1.45 }, // estudio · cuadrante sup-izq, surcos
-    { x: 26,  y: -10, scale: 1.55 }, // servicios · cuadrante sup-der
-    { x: 0,   y: 0,   scale: 1.85 }, // roster · cara de la etiqueta
-    { x: -8,  y: 22,  scale: 1.4  }, // contacto · borde inferior
-  ]
   const lerp = (a, b, t) => a + (b - a) * t
-  const next = FRAMES[Math.min(stage + 1, total - 1)]
   const cur = FRAMES[stage]
-  const t = easeInOut(local)
+  const nxt = FRAMES[Math.min(stage + 1, total - 1)]
+  const tt = easeInOut(local)
   const focal = {
-    x: lerp(cur.x, next.x, t),
-    y: lerp(cur.y, next.y, t),
-    scale: lerp(cur.scale, next.scale, t),
+    x: lerp(cur.x, nxt.x, tt),
+    y: lerp(cur.y, nxt.y, tt),
+    scale: lerp(cur.scale, nxt.scale, tt),
   }
-  const scale = focal.scale
-  // Disc width is min(72vmin, 880px). Focal x/y are in % of disc radius from center.
-  // To move focal point to viewport center: offset = -focal% * scale * (disc_radius_in_vmin / 100)
-  const DISC_R_VMIN = 36 // half of 72vmin
-  const offsetX = -focal.x * scale * (DISC_R_VMIN / 100)
-  const offsetY = -focal.y * scale * (DISC_R_VMIN / 100)
+  // Turntable canvas: 100vmin wide, aspect-ratio 3:2 → half-w 50vmin, half-h 33.33vmin
+  const offsetX = -focal.x * focal.scale * 0.50  // 50vmin / 100% = 0.5
+  const offsetY = -focal.y * focal.scale * 0.3333
 
   const panelStyle = (i, align) => {
     const d = i - stage
     const inOff = align === 'left' ? -42 : 42
     const outOff = align === 'left' ? 42 : -42
     if (d === 0) {
-      const t = ease(local)
+      const t = easeInOut(local)
       return {
         opacity: 1 - Math.min(1, t * 1.3),
         transform: `translate3d(${ -t * outOff }px, ${ -t * 24 }px, 0)`,
@@ -153,7 +152,7 @@ export default function App() {
       }
     }
     if (d === 1) {
-      const t = ease(local)
+      const t = easeInOut(local)
       return {
         opacity: Math.max(0, t * 1.4 - 0.3),
         transform: `translate3d(${ inOff * (1 - t) }px, ${ 24 - t * 24 }px, 0)`,
@@ -182,7 +181,7 @@ export default function App() {
         </a>
         <nav className="nav" aria-label="primary">
           <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Inicio</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: window.innerHeight * 1.5, behavior: 'smooth' }) }}>Estudio</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: window.innerHeight * 1.5, behavior: 'smooth' }) }}>Plato</a>
           <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: window.innerHeight * 3, behavior: 'smooth' }) }}>Roster</a>
           <a className="nav-cta" href="mailto:hola@cintanegra.fm">Contacto</a>
         </nav>
@@ -190,32 +189,112 @@ export default function App() {
 
       <main className="stage">
         <div
-          className={`vinyl-wrap${isPlaying ? ' spinning' : ''}${progress > 0.005 ? ' settled' : ''}`}
+          className={`turntable${isPlaying ? ' playing' : ''}`}
           style={{
-            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${scale})`,
+            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${focal.scale})`,
           }}
         >
-          <div className="vinyl">
-            <div className="vinyl-base" />
-            <div className="grooves" />
-            <div className="grooves-fine" />
-            <div className="iridescence" />
-            <div className="specular" />
-            <div className="dead-wax" />
-            <div className="label-ring" />
-            <div className="label">
-              <div className="label-inner">
-                <div className="label-row">CINTA NEGRA · RECORDS</div>
-                <div className="label-track">{trackName}</div>
-                <div className="label-row sub">33⅓ rpm · stereo · made in BCN</div>
-                <span className="spindle" />
+          {/* PLINTH */}
+          <div className="plinth">
+            <div className="plinth-grain" />
+            <div className="plinth-edge" />
+          </div>
+
+          {/* STROBE RING + PLATTER */}
+          <div className="platter-area">
+            <div className="strobe-ring" />
+            <div className="strobe-glow" />
+            <div className="platter">
+              <div className="platter-disc" />
+              <div className="platter-spindle" />
+
+              {/* VINYL on top of platter */}
+              <div className={`vinyl${isPlaying ? ' spinning' : ''}`} style={{ animationDuration: speed === 45 ? '1.33s' : '1.81s' }}>
+                <div className="vinyl-base" />
+                <div className="grooves" />
+                <div className="grooves-fine" />
+                <div className="iridescence" />
+                <div className="specular" />
+                <div className="dead-wax" />
+                <div className="label-ring" />
+                <div className="label">
+                  <div className="label-inner">
+                    <div className="label-row">CINTA NEGRA · RECORDS</div>
+                    <div className="label-track">{trackName}</div>
+                    <div className="label-row sub">{speed}⅓ rpm · stereo · BCN</div>
+                    <span className="spindle-hole" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* TONEARM */}
           <div className={`tonearm${isPlaying ? ' down' : ''}`} aria-hidden="true">
-            <span className="pivot" />
-            <span className="arm" />
-            <span className="head" />
+            <div className="counterweight" />
+            <div className="anti-skate" />
+            <div className="pivot-base">
+              <div className="pivot-pin" />
+            </div>
+            <div className="arm">
+              <div className="arm-tube" />
+              <div className="finger-lift" />
+              <div className="headshell">
+                <div className="headshell-body" />
+                <div className="cartridge" />
+                <div className="stylus" />
+              </div>
+            </div>
+          </div>
+          <div className="cueing-lever" aria-hidden="true">
+            <div className="cueing-stem" />
+            <div className="cueing-knob" />
+          </div>
+
+          {/* CONTROLS */}
+          <div className="controls">
+            <div className="speed-group">
+              <button
+                className={`pill ${speed === 33 ? 'on' : ''}`}
+                onClick={() => setSpeed(33)}
+                aria-label="33 rpm"
+              >
+                <span>33</span><em>⅓</em>
+              </button>
+              <button
+                className={`pill ${speed === 45 ? 'on' : ''}`}
+                onClick={() => setSpeed(45)}
+                aria-label="45 rpm"
+              >
+                <span>45</span>
+              </button>
+            </div>
+            <button
+              className={`start-btn${isPlaying ? ' on' : ''}`}
+              onClick={togglePlay}
+              aria-label={isPlaying ? 'Stop' : 'Start'}
+            >
+              <span className="start-led" />
+              <span className="start-label">{isPlaying ? 'STOP' : 'START'}</span>
+            </button>
+            <div className="pitch">
+              <span className="pitch-label">PITCH</span>
+              <div className="pitch-track">
+                <div className="pitch-handle" />
+                <span className="pitch-center" />
+              </div>
+              <span className="pitch-value">±0.0</span>
+            </div>
+            <div className="power">
+              <span className={`power-led${isPlaying ? ' on' : ''}`} />
+              <span className="power-label">POWER</span>
+            </div>
+          </div>
+
+          {/* PLAQUE */}
+          <div className="plaque" aria-hidden="true">
+            <div className="plaque-line">CINTA NEGRA</div>
+            <div className="plaque-sub">DD-2026 · DIRECT DRIVE</div>
           </div>
         </div>
 
@@ -259,7 +338,7 @@ export default function App() {
             <div className="meta-track">{trackName}</div>
             <div className="meta-sub">
               <span className={`pulse${isPlaying ? ' on' : ''}`} />
-              {isPlaying ? 'reproduciendo · 33⅓' : 'aguja levantada'}
+              {isPlaying ? `reproduciendo · ${speed}⅓` : 'aguja levantada'}
             </div>
           </div>
           <button className="upload" onClick={() => fileRef.current?.click()}>
@@ -277,7 +356,7 @@ export default function App() {
         </aside>
 
         <div className="hint" style={{ opacity: progress < 0.04 ? 1 : 0 }} aria-hidden="true">
-          <span>desliza · el disco se acerca</span>
+          <span>desliza · la cámara recorre el tocadiscos</span>
           <span className="hint-line" />
         </div>
 
