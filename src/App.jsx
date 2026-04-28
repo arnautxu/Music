@@ -113,8 +113,32 @@ export default function App() {
   const stage = Math.min(total - 1, Math.floor(progress * total * 0.999))
   const local = progress * total - stage
   const ease = (t) => 1 - Math.pow(1 - t, 3)
-  const scale = 1 + ease(progress) * 5.6
-  const rotate = progress * 480
+  const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+
+  // Per-section focal frames: where the camera looks on the vinyl.
+  // x/y in % of vinyl size from center. scale is the zoom factor.
+  const FRAMES = [
+    { x: 0,   y: 0,   scale: 1.0,  rot: 0   }, // intro · disco entero, centrado
+    { x: -22, y: -18, scale: 1.45, rot: 60  }, // estudio · cuadrante sup-izq, surcos
+    { x: 26,  y: -10, scale: 1.55, rot: 130 }, // servicios · cuadrante sup-der
+    { x: 0,   y: 0,   scale: 1.85, rot: 200 }, // roster · cara de la etiqueta
+    { x: -8,  y: 22,  scale: 1.4,  rot: 280 }, // contacto · borde inferior
+  ]
+  const lerp = (a, b, t) => a + (b - a) * t
+  const next = FRAMES[Math.min(stage + 1, total - 1)]
+  const cur = FRAMES[stage]
+  const t = easeInOut(local)
+  const focal = {
+    x: lerp(cur.x, next.x, t),
+    y: lerp(cur.y, next.y, t),
+    scale: lerp(cur.scale, next.scale, t),
+    rot: lerp(cur.rot, next.rot, t),
+  }
+  const scale = focal.scale
+  const rotate = focal.rot
+  // Compose offset: translate the vinyl so focal point sits at viewport center.
+  const offsetX = -focal.x * scale * 0.01
+  const offsetY = -focal.y * scale * 0.01
 
   const panelStyle = (i, align) => {
     const d = i - stage
@@ -141,7 +165,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="scroll-track" aria-hidden="true" />
+      <div className="scroll-track" aria-hidden="true">
+        {SECTIONS.map((s) => <div key={s.id} className="scroll-stop" />)}
+      </div>
       <div className="grain" aria-hidden="true" />
 
       <header className="topbar">
@@ -165,7 +191,9 @@ export default function App() {
       <main className="stage">
         <div
           className={`vinyl-wrap${isPlaying ? ' spinning' : ''}${progress > 0.005 ? ' settled' : ''}`}
-          style={{ transform: `translate3d(-50%, -50%, 0) scale(${scale})`, '--rot': `${rotate}deg` }}
+          style={{
+            transform: `translate3d(calc(-50% + ${offsetX}vmin), calc(-50% + ${offsetY}vmin), 0) scale(${scale}) rotate(${rotate}deg)`,
+          }}
         >
           <div className="vinyl">
             <div className="grooves" />
