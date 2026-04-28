@@ -62,13 +62,14 @@ const UploadIcon = () => (
 )
 
 // FRAMES — 3D camera positions around the turntable.
+// Each frame is a discrete shot. CSS transitions interpolate between them smoothly.
 // rx/ry/rz: rotation in degrees. tx/ty: translation in vmin. tz: translateZ in vmin (>0 closer).
 const FRAMES = [
-  { rx:  -6, ry:   0, rz: 0, tx:   0, ty:  0,  tz: -120 }, // intro · pla obert i lleugerament inclinat
-  { rx: -26, ry:   8, rz: 0, tx:  16, ty:  6,  tz:   30 }, // platter · vol cap al plat
-  { rx: -38, ry: -16, rz: 2, tx: -22, ty: 30,  tz:  140 }, // needle · pica sobre el cap d'agulla
-  { rx:  -8, ry:   0, rz: 0, tx:  18, ty:  4,  tz:  240 }, // label · vista zenital de l'etiqueta
-  { rx: -32, ry: -28, rz: 0, tx: -28, ty: -22, tz:  100 }, // controls · es gira cap al panell
+  { rx:  -8, ry:   0, rz:  0, tx:   0, ty:   0, tz: -100 }, // intro · pla obert
+  { rx: -16, ry:   6, rz:  0, tx:  16, ty:   6, tz:   40 }, // plato · pan al plat
+  { rx: -22, ry: -10, rz:  1, tx: -22, ty:  28, tz:  140 }, // aguja · picada al cap
+  { rx: -10, ry:   2, rz:  0, tx:  18, ty:   4, tz:  250 }, // etiqueta · zenital
+  { rx: -18, ry: -18, rz:  0, tx: -28, ty: -22, tz:  130 }, // controls
 ]
 
 export default function App() {
@@ -121,44 +122,19 @@ export default function App() {
   }
 
   const total = SECTIONS.length
-  const stage = Math.min(total - 1, Math.floor(progress * total * 0.999))
-  const local = progress * total - stage
-  const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
-
-  const lerp = (a, b, t) => a + (b - a) * t
-  const cur = FRAMES[stage]
-  const nxt = FRAMES[Math.min(stage + 1, total - 1)]
-  const tt = easeInOut(local)
-  const cam = {
-    rx: lerp(cur.rx, nxt.rx, tt),
-    ry: lerp(cur.ry, nxt.ry, tt),
-    rz: lerp(cur.rz, nxt.rz, tt),
-    tx: lerp(cur.tx, nxt.tx, tt),
-    ty: lerp(cur.ty, nxt.ty, tt),
-    tz: lerp(cur.tz, nxt.tz, tt),
-  }
+  // Hysteresis: change stage when crossing the centre of the section's scroll range.
+  const stage = Math.min(total - 1, Math.max(0, Math.round(progress * (total - 1))))
+  const cam = FRAMES[stage]
 
   const panelStyle = (i, align) => {
-    const d = i - stage
-    const inOff = align === 'left' ? -42 : 42
-    const outOff = align === 'left' ? 42 : -42
-    if (d === 0) {
-      const t = easeInOut(local)
-      return {
-        opacity: 1 - Math.min(1, t * 1.3),
-        transform: `translate3d(${ -t * outOff }px, ${ -t * 24 }px, 0)`,
-        filter: `blur(${t * 4}px)`,
-      }
+    const off = align === 'left' ? -42 : 42
+    if (i === stage) return { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0)' }
+    const dir = i < stage ? -1 : 1
+    return {
+      opacity: 0,
+      transform: `translate3d(${dir * off}px, ${dir * 12}px, 0)`,
+      filter: 'blur(6px)',
     }
-    if (d === 1) {
-      const t = easeInOut(local)
-      return {
-        opacity: Math.max(0, t * 1.4 - 0.3),
-        transform: `translate3d(${ inOff * (1 - t) }px, ${ 24 - t * 24 }px, 0)`,
-        filter: `blur(${(1 - t) * 4}px)`,
-      }
-    }
-    return { opacity: 0, transform: `translate3d(${d < 0 ? -outOff : outOff}px, 0, 0)`, filter: 'blur(8px)' }
   }
 
   return (

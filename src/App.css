@@ -123,6 +123,8 @@
   backface-visibility: hidden;
   will-change: transform;
   pointer-events: auto;
+  /* Cinematic camera move between shots. Driven by stage change, not per-frame scroll. */
+  transition: transform 1100ms cubic-bezier(0.7, 0, 0.18, 1);
 }
 
 /* PLINTH — caixa de fusta/metall */
